@@ -1,25 +1,8 @@
 package main
 
 import (
-	"sort"
 	"testing"
 )
-
-func compareSlices(a, b []int) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	sort.Ints(a)
-	sort.Ints(b)
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
-}
 
 func TestFindFrequentTreeSum(t *testing.T) {
 	t.Run("one", func(t *testing.T) {
