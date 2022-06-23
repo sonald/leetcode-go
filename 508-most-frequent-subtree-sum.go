@@ -1,11 +1,5 @@
 package main
 
-type TreeNode struct {
-	Val   int
-	Left  *TreeNode
-	Right *TreeNode
-}
-
 func subtreeSums(np *TreeNode, sums map[int]int) int {
 	var l, r int
 	if np.Left != nil {

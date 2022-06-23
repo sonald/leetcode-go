@@ -24,7 +24,7 @@ func FuzzRadixSort(f *testing.F) {
 		radixSort(nums)
 		log.Printf("input: %v\n", nums)
 		log.Printf("expected: %v\n", expected)
-		if !compareSortedSlices(nums, expected) {
+		if !compareSlicesNoSort(nums, expected) {
 			t.Errorf("sort failed")
 		}
 	})
