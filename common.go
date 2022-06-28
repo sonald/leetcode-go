@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/heap"
 	"container/list"
 	"fmt"
 	"sort"
@@ -233,18 +234,10 @@ func (np *AVLNode) updateHeight() {
 	np.h = max(l, r) + 1
 }
 
-func insertNode(root *AVLNode, np *AVLNode) *AVLNode {
+func rebalance(root *AVLNode) *AVLNode {
 	if root == nil {
-		return np
+		return nil
 	}
-
-	if root.Data > np.Data {
-		root.Left = insertNode(root.Left, np)
-	} else {
-		root.Right = insertNode(root.Right, np)
-	}
-	root.updateHeight()
-
 	if root.slant() >= 2 {
 		target := root.Left
 		if target.leftLeaning() {
@@ -268,6 +261,112 @@ func insertNode(root *AVLNode, np *AVLNode) *AVLNode {
 	return root
 }
 
+func (np *AVLNode) getMin() *AVLNode {
+	if np == nil {
+		return nil
+	}
+
+	l := np
+	for l.Left != nil {
+		l = l.Left
+	}
+	return l
+}
+
+func deleteMinNode(root *AVLNode) *AVLNode {
+	if root == nil {
+		return nil
+	}
+
+	if root.Left == nil {
+		root = root.Right
+	} else {
+		root.Left = deleteMinNode(root.Left)
+	}
+
+	if root != nil {
+		root.updateHeight()
+	}
+
+	return rebalance(root)
+}
+
+func removeNode(root *AVLNode, data int) *AVLNode {
+	if root == nil {
+		return nil
+	}
+
+	if root.Data > data {
+		root.Left = removeNode(root.Left, data)
+	} else if root.Data < data {
+		root.Right = removeNode(root.Right, data)
+	} else {
+		if root.Right == nil {
+			return root.Left
+		}
+		if root.Left == nil {
+			return root.Right
+		}
+
+		md := root.Right.getMin()
+		root.Right = deleteMinNode(root.Right)
+		root.Data = md.Data
+	}
+	root.updateHeight()
+	return rebalance(root)
+}
+
+func insertNodeIter(root *AVLNode, np *AVLNode) *AVLNode {
+	if root == nil {
+		return np
+	}
+
+	var sp = []**AVLNode{&root}
+	for {
+		p := sp[len(sp)-1]
+		if (*p).Data > np.Data {
+			if (*p).Left == nil {
+				(*p).Left = np
+				break
+			}
+			p = &(*p).Left
+			sp = append(sp, p)
+		} else {
+			if (*p).Right == nil {
+				(*p).Right = np
+				break
+			}
+			p = &(*p).Right
+			sp = append(sp, p)
+		}
+	}
+
+	for len(sp) > 0 {
+		p := sp[len(sp)-1]
+		sp = sp[:len(sp)-1]
+
+		(*p).updateHeight()
+		*p = rebalance(*p)
+	}
+
+	return root
+}
+
+func insertNode(root *AVLNode, np *AVLNode) *AVLNode {
+	if root == nil {
+		return np
+	}
+
+	if root.Data > np.Data {
+		root.Left = insertNode(root.Left, np)
+	} else {
+		root.Right = insertNode(root.Right, np)
+	}
+	root.updateHeight()
+
+	return rebalance(root)
+}
+
 func (np *AVLNode) Dump() {
 	fmt.Print("(")
 	if np.Left != nil {
@@ -283,9 +382,21 @@ func (np *AVLNode) Dump() {
 	fmt.Print(")")
 }
 
+func (avl *AVL) getMin() int {
+	return avl.head.getMin().Data
+}
+
 func (avl *AVL) Insert(data int) {
 	np := &AVLNode{Data: data, h: 1}
 	avl.head = insertNode(avl.head, np)
+}
+
+func (avl *AVL) Remove(data int) {
+	avl.head = removeNode(avl.head, data)
+}
+
+func (avl *AVL) DeleteMin() {
+	avl.head = deleteMinNode(avl.head)
 }
 
 func (avl *AVL) Dump() {
@@ -295,6 +406,123 @@ func (avl *AVL) Dump() {
 	fmt.Println("")
 }
 
+func (avl *AVL) Size() int {
+	var dfs func(node *AVLNode) int
+	dfs = func(node *AVLNode) int {
+		if node == nil {
+			return 0
+		}
+		return dfs(node.Left) + dfs(node.Right) + 1
+	}
+
+	return dfs(avl.head)
+}
+
+func (avl *AVL) SearchDFS(pred func(v int) bool) *AVLNode {
+	var dfs func(node *AVLNode) *AVLNode
+	dfs = func(node *AVLNode) *AVLNode {
+		if node == nil {
+			return nil
+		}
+
+		if pred(node.Data) {
+			lo := dfs(node.Left)
+			if lo == nil {
+				return node
+			}
+
+			return lo
+		} else {
+			return dfs(node.Right)
+		}
+	}
+
+	return dfs(avl.head)
+}
+
+func (avl *AVL) Search(pred func(v int) bool) *AVLNode {
+	if avl.head == nil {
+		return nil
+	}
+	var stack = make([]*AVLNode, 0, avl.head.h)
+	stack = append(stack, avl.head)
+	for {
+		np := stack[len(stack)-1]
+
+		if pred(np.Data) {
+			if np.Left == nil {
+				return np
+			}
+			stack = append(stack, np.Left)
+		} else {
+			stack = stack[:len(stack)-1]
+
+			if np.Right == nil {
+				break
+			}
+			stack = append(stack, np.Right)
+		}
+	}
+
+	if len(stack) > 0 {
+		return stack[len(stack)-1]
+	}
+	return nil
+}
+
 func AVLInit() *AVL {
 	return &AVL{}
+}
+
+/// heap
+
+type IntHeap []int
+
+func (a IntHeap) Len() int           { return len(a) }
+func (a IntHeap) Less(i, j int) bool { return a[i] > a[j] }
+func (a IntHeap) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
+func (a *IntHeap) Push(x interface{}) {
+	*a = append(*a, x.(int))
+}
+
+func (a *IntHeap) Pop() interface{} {
+	old := *a
+	n := len(old)
+	x := old[n-1]
+	*a = old[0 : n-1]
+	return x
+}
+
+func HeapSort(a []int) {
+	if len(a) <= 1 {
+		return
+	}
+
+	h := IntHeap(a)
+	heap.Init(&h)
+	a[0], a[len(a)-1] = a[len(a)-1], a[0]
+
+	for r := len(a) - 1; r > 0; r-- {
+		h := IntHeap(a[0:r])
+		heap.Fix(&h, 0)
+		a[0], a[r-1] = a[r-1], a[0]
+	}
+}
+
+///
+
+func BucketSort(nums []int) {
+
+}
+
+/// Treap
+type TreapNode struct {
+	Left, Right *TreeNode
+	prio        int
+	Data        interface{}
+}
+
+type Treap struct {
+	head *TreapNode
 }
