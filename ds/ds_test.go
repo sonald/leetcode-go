@@ -94,12 +94,12 @@ func TestAVL_RevSearch(t *testing.T) {
 	}
 }
 
-func TestSegmentTree(t *testing.T) {
+func TestNewIntervalQueryTree(t *testing.T) {
 	type Interval struct {
 		start, end int
 	}
 	t.Run("round1", func(t *testing.T) {
-		st := NewSegmentTree(0, 1e9)
+		st := NewIntervalQueryTree(0, 1e9)
 		var testcases = []struct {
 			interval Interval
 			result   bool
@@ -124,7 +124,7 @@ func TestSegmentTree(t *testing.T) {
 	})
 
 	t.Run("round2", func(t *testing.T) {
-		st := NewSegmentTree(0, 1e9)
+		st := NewIntervalQueryTree(0, 1e9)
 		var testcases = []struct {
 			interval Interval
 			result   bool
@@ -150,7 +150,7 @@ func TestSegmentTree(t *testing.T) {
 	})
 
 	t.Run("round3", func(t *testing.T) {
-		st := NewSegmentTree(0, 1e9)
+		st := NewIntervalQueryTree(0, 1e9)
 		var testcases = []struct {
 			interval Interval
 			result   bool
@@ -177,4 +177,7 @@ func TestSegmentTree(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestNewSegmentTree(t *testing.T) {
 }

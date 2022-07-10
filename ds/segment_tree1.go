@@ -1,14 +1,14 @@
 package ds
 
-type SegmentTree struct {
+type IntervalQueryTree struct {
 	// map key is the index of the segment in the segment tree
 	tree, lazy map[int]bool
 	//range
 	lo, hi int
 }
 
-func NewSegmentTree(lo, hi int) *SegmentTree {
-	return &SegmentTree{
+func NewIntervalQueryTree(lo, hi int) *IntervalQueryTree {
+	return &IntervalQueryTree{
 		tree: make(map[int]bool),
 		lazy: make(map[int]bool),
 		lo:   lo,
@@ -16,7 +16,7 @@ func NewSegmentTree(lo, hi int) *SegmentTree {
 	}
 }
 
-func (st *SegmentTree) query(start, end, lo, hi, idx int) bool {
+func (st *IntervalQueryTree) query(start, end, lo, hi, idx int) bool {
 	if start > hi || end < lo {
 		return false
 	}
@@ -33,11 +33,11 @@ func (st *SegmentTree) query(start, end, lo, hi, idx int) bool {
 	return st.query(start, end, lo, m, idx*2+1) || st.query(start, end, m+1, hi, idx*2+2)
 }
 
-func (st *SegmentTree) Query(start, end int) bool {
+func (st *IntervalQueryTree) Query(start, end int) bool {
 	return st.query(start, end, st.lo, st.hi, 0)
 }
 
-func (st *SegmentTree) update(start, end, lo, hi, idx int) {
+func (st *IntervalQueryTree) update(start, end, lo, hi, idx int) {
 	if start > hi || end < lo {
 		return
 	}
@@ -56,6 +56,6 @@ func (st *SegmentTree) update(start, end, lo, hi, idx int) {
 	}
 }
 
-func (st *SegmentTree) Update(start, end int) {
+func (st *IntervalQueryTree) Update(start, end int) {
 	st.update(start, end, st.lo, st.hi, 0)
 }

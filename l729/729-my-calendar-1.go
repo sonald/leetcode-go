@@ -15,13 +15,13 @@ type IntervalList729 []Interval729
 type MyCalendar struct {
 	intervals IntervalList729
 	bst       *ds.AVL
-	st        *ds.SegmentTree
+	st        *ds.IntervalQueryTree
 }
 
 func Constructor() MyCalendar {
 	return MyCalendar{
 		bst: ds.AVLInit(),
-		st:  ds.NewSegmentTree(0, 1e9),
+		st:  ds.NewIntervalQueryTree(0, 1e9),
 	}
 }
 
