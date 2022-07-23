@@ -37,6 +37,19 @@ func compareSlices(a, b []int) bool {
 	return true
 }
 
+func compareGrids(a, b [][]int) bool {
+	if len(a) != len(b) || len(a[0]) != len(b[0]) {
+		return false
+	}
+
+	for i := 0; i < len(a); i++ {
+		if !compareSlicesNoSort(a[i], b[i]) {
+			return false
+		}
+	}
+	return true
+}
+
 func countSort(nums []int, radix int, output []int) {
 	var counts [10]int
 

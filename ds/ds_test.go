@@ -177,7 +177,5 @@ func TestNewIntervalQueryTree(t *testing.T) {
 			}
 		}
 	})
-}
 
-func TestNewSegmentTree(t *testing.T) {
 }

@@ -16,7 +16,7 @@ func NewIntervalQueryTree(lo, hi int) *IntervalQueryTree {
 	}
 }
 
-func (st *IntervalQueryTree) query(start, end, lo, hi, idx int) bool {
+func (st *IntervalQueryTree) queryAny(start, end, lo, hi, idx int) bool {
 	if start > hi || end < lo {
 		return false
 	}
@@ -30,11 +30,11 @@ func (st *IntervalQueryTree) query(start, end, lo, hi, idx int) bool {
 	}
 
 	m := lo + (hi-lo)/2
-	return st.query(start, end, lo, m, idx*2+1) || st.query(start, end, m+1, hi, idx*2+2)
+	return st.queryAny(start, end, lo, m, idx*2+1) || st.queryAny(start, end, m+1, hi, idx*2+2)
 }
 
 func (st *IntervalQueryTree) Query(start, end int) bool {
-	return st.query(start, end, st.lo, st.hi, 0)
+	return st.queryAny(start, end, st.lo, st.hi, 0)
 }
 
 func (st *IntervalQueryTree) update(start, end, lo, hi, idx int) {
