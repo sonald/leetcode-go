@@ -21,6 +21,22 @@ func compareSlicesNoSort(a, b []int) bool {
 	return true
 }
 
+func compareStringSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	sort.Strings(a)
+	sort.Strings(b)
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func compareSlices(a, b []int) bool {
 	if len(a) != len(b) {
 		return false
@@ -120,39 +136,22 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-// a list for a complete Tree (-1 for nil)
+// data: a list for a complete Tree (-1 for nil)
 func BuildTreeFromList(data []int) *TreeNode {
-	var bfs func(int) *TreeNode
-
 	var stack = list.New()
 
-	bfs = func(i int) *TreeNode {
-		if i >= len(data) {
-			return nil
-		}
-		if data[i] > 0 {
-			return nil
-		} // as nil pointer
-
-		np := &TreeNode{Val: data[i]}
-		np.Left = bfs(i + 1)
-		np.Right = bfs(i + 2)
-
-		return np
-	}
-
-	var i int = 0
+	var i = 0
 	head := &TreeNode{Val: data[i]}
 	i++
 	stack.PushBack(head)
 	for i < len(data) {
 		np := stack.Remove(stack.Front()).(*TreeNode)
-		if data[i] > 0 {
+		if data[i] >= 0 {
 			np.Left = &TreeNode{Val: data[i]}
 			stack.PushBack(np.Left)
 		}
 		i++
-		if i < len(data) && data[i] > 0 {
+		if i < len(data) && data[i] >= 0 {
 			np.Right = &TreeNode{Val: data[i]}
 			stack.PushBack(np.Right)
 		}
@@ -160,6 +159,22 @@ func BuildTreeFromList(data []int) *TreeNode {
 	}
 
 	return head
+}
+
+func compareTree(t1 *TreeNode, t2 *TreeNode) bool {
+    if t1 == nil && t1 == t2 {
+        return true
+    }
+    
+    if (t1 == nil || t2 == nil) {
+        return false
+    }
+
+    if t1.Val != t2.Val {
+        return false
+    }
+
+    return compareTree(t1.Left, t2.Left) && compareTree(t1.Right, t2.Right)
 }
 
 func (np *TreeNode) Dump() {

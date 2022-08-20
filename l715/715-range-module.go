@@ -19,10 +19,10 @@ func NewIntervalQueryTree(lo, hi int) *IntervalQueryTree {
 }
 
 func (st *IntervalQueryTree) queryAll(start, end, lo, hi, idx int) bool {
-    fmt.Printf("query: [%v, %v] [%v, %v] idx=%v tree=%v lazy=%v\n", start, end, lo, hi, idx, st.tree[idx], st.lazy[idx])
+	fmt.Printf("query: [%v, %v] [%v, %v] idx=%v tree=%v lazy=%v\n", start, end, lo, hi, idx, st.tree[idx], st.lazy[idx])
 
 	//if start > hi || end < lo {
-		//return true
+	//return true
 	//}
 
 	if start <= lo && end >= hi {
@@ -35,24 +35,25 @@ func (st *IntervalQueryTree) queryAll(start, end, lo, hi, idx int) bool {
 	}
 
 	m := lo + (hi-lo)/2
-    if st.lazy[idx] {
-        st.tree[idx*2+1] = true
-        st.tree[idx*2+2] = true
+	if st.lazy[idx] {
+		st.tree[idx*2+1] = true
+		st.tree[idx*2+2] = true
 
-        st.lazy[idx*2+1] = true
-        st.lazy[idx*2+2] = true
-    }
+		st.lazy[idx*2+1] = true
+		st.lazy[idx*2+2] = true
+		fmt.Printf("query: augment subs [%v, %v] [%v, %v] idx=%v tree=%v lazy=%v\n", start, end, lo, hi, idx, st.tree[idx], st.lazy[idx])
+	}
 	//return st.queryAll(start, end, lo, m, idx*2+1) && st.queryAll(start, end, m+1, hi, idx*2+2)
-	
-    if start <= m && !st.queryAll(start, end, lo, m, idx*2+1) {
-        return false
-    }
 
-    if end > m && !st.queryAll(start, end, m+1, hi, idx*2+2) {
-        return false
-    }
+	if start <= m && !st.queryAll(start, end, lo, m, idx*2+1) {
+		return false
+	}
 
-    return true
+	if end > m && !st.queryAll(start, end, m+1, hi, idx*2+2) {
+		return false
+	}
+
+	return true
 }
 
 func (st *IntervalQueryTree) Query(start, end int) bool {
@@ -96,7 +97,7 @@ func (st *IntervalQueryTree) remove(start, end, lo, hi, idx int) {
 		st.tree[idx] = false
 		st.lazy[idx] = false
 
-		fmt.Printf("remove1: [%v, %v] [%v, %v] idx=%v \n", start, end, lo, hi, idx )
+		fmt.Printf("remove1: [%v, %v] [%v, %v] idx=%v \n", start, end, lo, hi, idx)
 	} else {
 		m := lo + (hi-lo)/2
 		if st.lazy[idx] {
@@ -114,10 +115,10 @@ func (st *IntervalQueryTree) remove(start, end, lo, hi, idx int) {
 		//if !st.lazy[idx*2+1] && !st.lazy[idx*2+2] {
 		if !st.tree[idx*2+1] && !st.tree[idx*2+2] {
 			//fmt.Printf("remove2: [%v, %v] [%v, %v] idx=%v, tree=%v, lazy=%v\n", start, end, lo, hi, idx,
-				//st.tree[idx], st.lazy[idx])
+			//st.tree[idx], st.lazy[idx])
 			st.tree[idx] = false
 		}
-        if !st.lazy[idx*2+1] || !st.lazy[idx*2+2] {
+		if !st.lazy[idx*2+1] || !st.lazy[idx*2+2] {
 			st.lazy[idx] = false
 		}
 		fmt.Printf("after remove: [%v, %v] [%v, %v] idx=%v, tree=%v, lazy=%v\n", start, end, lo, hi, idx,

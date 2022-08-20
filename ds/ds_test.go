@@ -16,6 +16,87 @@ func (i Int) Compare(j AVLInterface) int {
 	return 0
 }
 
+func BenchmarkAVL_Successor2(b *testing.B) {
+	var data = []int{3, 1, 10, 4, 8, 5, 6, 11, 9}
+	avl := AVLInit()
+	for _, v := range data {
+		avl.Insert(Int(v))
+	}
+
+	var testcases = []struct {
+		bound Int
+		curr  Int
+		next  Int
+	}{
+		{2, 3, 4},
+		{7, 8, 9},
+		{1, 1, 3},
+		{0, 1, 3},
+		{5, 5, 6},
+		{4, 4, 5},
+		{6, 6, 8},
+		{11, 11, -1},
+	}
+
+	for i := 0; i < b.N; i++ {
+		for _, p := range testcases {
+			np := avl.Search(func(v AVLInterface) bool {
+				return v.(Int) >= p.bound
+			})
+
+			next := avl.Successor2(np)
+			if p.next == -1 {
+				if next != nil {
+					b.Errorf("NIL: bound: %d, expected: %d, real: %+v\n", p.bound, p.next, next)
+				}
+			} else if np == nil || next == nil || next.Data != p.next {
+				b.Errorf("bound: %d, expected: %d, real: %+v\n", p.bound, p.next, next)
+			}
+		}
+	}
+
+}
+func BenchmarkAVL_Successor(b *testing.B) {
+	var data = []int{3, 1, 10, 4, 8, 5, 6, 11, 9}
+	avl := AVLInit()
+	for _, v := range data {
+		avl.Insert(Int(v))
+	}
+
+	var testcases = []struct {
+		bound Int
+		curr  Int
+		next  Int
+	}{
+		{2, 3, 4},
+		{7, 8, 9},
+		{1, 1, 3},
+		{0, 1, 3},
+		{5, 5, 6},
+		{4, 4, 5},
+		{6, 6, 8},
+		{11, 11, -1},
+	}
+
+	for i := 0; i < b.N; i++ {
+		for _, p := range testcases {
+			np := avl.Search(func(v AVLInterface) bool {
+				return v.(Int) >= p.bound
+			})
+
+			next := avl.Successor(np)
+			if p.next == -1 {
+				if next != nil {
+					b.Errorf("NIL: bound: %d, expected: %d, real: %+v\n", p.bound, p.next, next)
+				}
+			} else if np == nil || next == nil || next.Data != p.next {
+				b.Errorf("bound: %d, expected: %d, real: %+v\n", p.bound, p.next, next)
+			}
+		}
+	}
+
+}
+
 func TestAVL_Successor(t *testing.T) {
 	var data = []int{3, 1, 10, 4, 8, 5, 6, 11, 9}
 	avl := AVLInit()

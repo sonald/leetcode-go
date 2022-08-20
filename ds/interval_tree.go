@@ -202,6 +202,10 @@ func (np *AVLNode) Dump() {
 	fmt.Print(")")
 }
 
+func (avl *AVL) GetMinNode() *AVLNode {
+	return avl.head.getMin()
+}
+
 func (avl *AVL) GetMin() AVLInterface {
 	return avl.head.getMin().Data
 }
@@ -224,8 +228,8 @@ func (avl *AVL) Parent(np *AVLNode) *AVLNode {
 	}
 }
 
-func (avl *AVL) Successor(np *AVLNode) *AVLNode {
-	var sp []*AVLNode
+func (avl *AVL) Successor2(np *AVLNode) *AVLNode {
+	var sp = make([]*AVLNode, 0, avl.head.h)
 	if np.Right == nil {
 		cur := avl.head
 		for {
@@ -250,6 +254,29 @@ func (avl *AVL) Successor(np *AVLNode) *AVLNode {
 		}
 	}
 	return np.Right.getMin()
+}
+
+func (root *AVLNode) Successor(np *AVLNode) *AVLNode {
+	switch root.Data.Compare(np.Data) {
+	default:
+		if root.Right != nil {
+			return root.Right.Successor(np)
+		}
+		return nil
+	case 1:
+		if root.Left != nil {
+			next := root.Left.Successor(np)
+			if next == nil {
+				return root
+			}
+			return next
+		}
+		return root
+	}
+}
+
+func (avl *AVL) Successor(np *AVLNode) *AVLNode {
+	return avl.head.Successor(np)
 }
 
 func (avl *AVL) Insert(data AVLInterface) {
@@ -288,6 +315,7 @@ func (avl *AVL) Predecessor(v AVLInterface) *AVLNode {
 	return nil
 }
 
+//upper_bound satisfied pred
 func (avl *AVL) RevSearch(pred func(v AVLInterface) bool) *AVLNode {
 	var dfs func(node *AVLNode) *AVLNode
 	dfs = func(node *AVLNode) *AVLNode {
@@ -310,6 +338,7 @@ func (avl *AVL) RevSearch(pred func(v AVLInterface) bool) *AVLNode {
 	return dfs(avl.head)
 }
 
+//lower_bound satisfied pred
 func (avl *AVL) SearchDFS(pred func(v AVLInterface) bool) *AVLNode {
 	var dfs func(node *AVLNode) *AVLNode
 	dfs = func(node *AVLNode) *AVLNode {
@@ -317,6 +346,7 @@ func (avl *AVL) SearchDFS(pred func(v AVLInterface) bool) *AVLNode {
 			return nil
 		}
 
+		fmt.Printf("dfs(np=%v), pred=%v\n", node, pred(node.Data))
 		if pred(node.Data) {
 			lo := dfs(node.Left)
 			if lo == nil {
